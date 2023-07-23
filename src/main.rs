@@ -91,5 +91,43 @@ async fn main() -> Result<(), Error> {
     // println!("1:{:?}",collection1.iter().fold(0, |acc, x| acc + x));
     // println!("2:{:?}", final_priority);
 
+    
+    //--- Day 4: Camp Cleanup ---
+    //
+    let data = fs::read_to_string("4.txt").expect("Unable to read file");
+    let collection1 = data.split_terminator("\r\n").map(|n| {
+        let a = n.split(",").map(|b| {
+            b.split("-")
+            .map(|n| { n.parse::<i32>().unwrap()})
+            .collect::<Vec<i32>>()
+        }).collect::<Vec<Vec<i32>>>();
+        a
+    }).collect::<Vec<Vec<Vec<i32>>>>();
+
+    let overlapped = collection1.iter()
+        .filter(|&x| {
+            (x[0][0] <= x[1][0] && x[0][1] >= x[1][1]) ||
+            (x[1][0] <= x[0][0] && x[1][1] >= x[0][1])
+        })
+        .collect::<Vec<_>>();
+        // .enumerate()
+        // .map(|(i , x)| {
+        //     println!("{:?}-{:?}, {:?}-{:?} {:?} v",x[0][0],x[0][1],x[1][0],x[1][1], i)
+        // })
+
+    let overlapping = collection1.iter()
+    .filter(|&x| {
+        (x[0][0] <= x[1][0] && x[0][1] >= x[1][1]) ||
+        (x[1][0] <= x[0][0] && x[1][1] >= x[0][1]) ||
+        (x[0][0] <= x[1][0] && x[0][1] >= x[1][0]) ||
+        (x[1][0] <= x[0][0] && x[1][1] >= x[0][0])
+    })
+    .enumerate()
+    .map(|(i , x)| {
+        println!("{:?}-{:?}, {:?}-{:?} {:?} v",x[0][0],x[0][1],x[1][0],x[1][1], i)
+    })
+    .collect::<Vec<_>>().len();
+    println!("1:{:?}, 2:{:?}", overlapped.len(), overlapping);
+
     Ok(())
 }
