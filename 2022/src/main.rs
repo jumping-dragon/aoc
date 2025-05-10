@@ -1,5 +1,5 @@
 use std::cell::Cell;
-use std::collections::{BTreeSet, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
 use std::{collections::HashMap, fs};
 
 use anyhow::Error;
@@ -213,47 +213,105 @@ fn main() -> Result<(), Error> {
     // );
 
     // --- Day 6: Tuning Trouble ---
-    let data = fs::read_to_string("6.txt").expect("Unable to read file");
-    let mut current = VecDeque::new();
-    let mut counter = 0;
+    // let data = fs::read_to_string("6.txt").expect("Unable to read file");
+    // let mut current = VecDeque::new();
+    // let mut counter = 0;
+    //
+    // for c in data.chars() {
+    //     current.push_back(c);
+    //     counter = counter + 1;
+    //     // if current.len() == 4 { // q1
+    //     if current.len() == 14 {
+    //         if test_code(&current) {
+    //             println!("1:{:?}, c: {:?}", current, counter);
+    //             break;
+    //         } else {
+    //             current.pop_front();
+    //         }
+    //     }
+    // }
 
-    for c in data.chars() {
-        current.push_back(c);
-        counter = counter + 1;
-        // if current.len() == 4 { // q1
-        if current.len() == 14 {
-            if test_code(&current) {
-                println!("1:{:?}, c: {:?}", current, counter);
-                break;
+    // --- Day 7: No Space Left On Device ---
+    let data = fs::read_to_string("7.txt").expect("Unable to read file");
+    let mut folder_tree = Tree::default();
+    let mut current_tree = &mut folder_tree;
+
+    let lines = data.split_terminator("\n");
+
+    for n in lines {
+        if n.contains('$') {
+            let t = n.split_terminator(" ").collect::<Vec<&str>>();
+            // println!("1:{:?}", t);
+            match t[1] {
+                "cd" => {
+                    match t[1] {
+                        "/" => {
+                            // ignore, we're already there
+                        }
+                        ".." => {
+                            todo!("how the heck do we find the parent?");
+                        }
+                        _ => {
+                            current_tree =
+                                current_tree.children.entry(t[1].to_string()).or_default();
+                        }
+                    }
+                }
+                _ => {}
+            }
+        } else {
+            let t = n.split_terminator(" ").collect::<Vec<&str>>();
+            println!("1:{:?}", t);
+            if t[0] == "dir" {
+                current_tree.children.entry(t[1].to_string()).or_default();
             } else {
-                current.pop_front();
+                current_tree
+                    .children
+                    .entry(t[1].to_string())
+                    .or_default()
+                    .size = t[0].parse::<usize>().unwrap();
             }
         }
     }
-    // let collection1 = data
-    //     .split_terminator("\n")
-    //     .map(|n| {
-    //         let t = n.split_terminator(" ").collect::<Vec<&str>>();
-    //         vec![
-    //             t[1].parse::<usize>().unwrap(),
-    //             t[3].parse::<usize>().unwrap(),
-    //             t[5].parse::<usize>().unwrap(),
-    //         ]
-    //     })
-    //     .collect::<Vec<Vec<usize>>>();
+    // folder_tree
+    //     .iter()
+    //     .filter(|(key, val)| val[0] != "dir")
+    //     .for_each(|(key, val)| {
+    //         if folder_tree2.contains_key(&val[1]) {
+    //             let x = folder_tree2.get_mut(&val[1]).unwrap();
+    //             *x += val[0].parse::<i32>().unwrap();
+    //         } else {
+    //             folder_tree2.insert(&val[1], val[0].parse::<i32>().unwrap());
+    //         }
+    //         // println!("1:{:#?}", val);
+    //     });
     //
-    // println!("1:{:?}, 2:", data);
+    // let a = folder_tree2
+    //     .iter()
+    //     .filter(|(key, val)| **val <= i32::from(100000))
+    //     .map(|(key, val)| val)
+    //     .fold(0, |acc, x| acc + x);
+    // .enumerate()
+    // .collect::<Vec<_>>();
+
+    println!("1:{:#?}", folder_tree);
     Ok(())
 }
 
-fn test_code(v:&VecDeque<char>) -> bool {
-    let mut code = BTreeSet::new();
-    for n in v.iter() {
-        if code.insert(n) {
-            continue;
-        } else {
-            return false;
-        }
-    }
-    true
+#[derive(Debug, Default)]
+struct Tree {
+    size: usize,
+    children: BTreeMap<String, Tree>,
 }
+
+// fn test_code(v: &VecDeque<char>) -> bool {
+//     let mut code = BTreeSet::new();
+//     for n in v.iter() {
+//         if code.insert(n) {
+//             continue;
+//         } else {
+//             return false;
+//         }
+//     }
+//     true
+// }
